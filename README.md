@@ -25,21 +25,23 @@ Ensure your wireless adapter supports Monitor Mode and Packet Injection.
 
 # Clone the repository
 git clone https://github.com/H8osh0kuHaki/Wifi.git
+--------------------------------------------------
 cd wifi
+-------------------------------------------------
 # Install required libraries
 pip install flask scapy
-
+--------------------------------------
 ## 3. Preparation (Linux)
 Put your wireless interface into monitor mode:
-
+----------------------------------------------
 sudo airmon-ng start wlan0
-
+----------------------------------------------
 ## 4. Execution
 Run with root privileges to allow raw packet injection:
-
+------------------------------------------------------
 sudo python3 app.py
-
-Navigate to http://0.0.0 in your browser.
+---------------------------------------------------
+Navigate to http://127.0.0.1:5000 in your browser.
 ------------------------------
 ## ⚠️ Legal & Ethical Warning
 IMPORTANT: This tool is designed for authorized security testing and educational purposes only. Using this software to target networks without explicit permission from the owner is illegal and may be subject to criminal prosecution. Testing should only be conducted in a controlled lab environment or on networks you own. The creators of this software assume no liability for any misuse or damage caused by this tool.
