@@ -24,8 +24,8 @@ Ensure your wireless adapter supports Monitor Mode and Packet Injection.
 ## 2. Install Dependencies
 
 # Clone the repository
-git clone https://github.com
-cd crimson-protocol
+git clone https://github.com/H8osh0kuHaki/Wifi.git
+cd wifi
 # Install required libraries
 pip install flask scapy
 
