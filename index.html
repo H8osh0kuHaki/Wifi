@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RED_PROTOCOL_v4</title>
+    <style>
+        :root { --crimson: #ff0000; --dark-red: #4a0000; --bg: #050000; --panel: rgba(20, 0, 0, 0.9); }
+        body { background: var(--bg); color: var(--crimson); font-family: 'Segoe UI', monospace; margin: 0; padding: 30px; }
+        .dashboard { max-width: 1000px; margin: 0 auto; }
+        .header { border-left: 5px solid var(--crimson); padding-left: 15px; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+        .panel { background: var(--panel); border: 1px solid var(--dark-red); padding: 25px; border-radius: 2px; }
+        .btn { background: var(--dark-red); color: white; border: 1px solid var(--crimson); padding: 12px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 10px; transition: 0.2s; }
+        .btn:hover { background: var(--crimson); color: black; box-shadow: 0 0 15px var(--crimson); }
+        .net-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #200; cursor: pointer; }
+        .net-item:hover { background: rgba(255,0,0,0.1); border-color: var(--crimson); }
+        #packet-count { font-size: 3.5em; font-weight: bold; text-shadow: 0 0 10px red; }
+        #log { color: #f88; font-size: 0.8em; height: 100px; overflow-y: auto; background: #000; padding: 10px; border: 1px solid #300; }
+        .wa-btn { color: white; text-decoration: none; background: #25D366; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1 style="margin:0; font-size: 2.2em;">NASA WIFI Crash</h1>
+            <p style="color: #600;">STATUS: READY // OPERATOR: +93782059574</p>
+        </div>
+
+        <div class="grid">
+            <!-- 1. SCANNER PANEL -->
+            <div class="panel">
+                <h3>PHASE_01: DISCOVERY</h3>
+                <button class="btn" onclick="startScan()">INJECT_SCAN_PACKETS</button>
+                <div id="network-list" style="margin-top:15px;"></div>
+            </div>
+
+            <!-- 2. DEAUTH PANEL -->
+            <div class="panel">
+                <h3>PHASE_02: STRIKE</h3>
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-size: 0.7em; opacity: 0.6;">PACKETS_SENT</div>
+                    <div id="packet-count">0</div>
+                </div>
+                <div id="log">> STANDBY_WAITING_FOR_TARGET...</div>
+                <button class="btn" style="background: #200; margin-top:20px;" onclick="stopAttack()">TERMINATE_STRIKE</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 50px; text-align: center; border-top: 1px solid #300; padding-top: 20px;">
+            <a href="https://wa.me" class="wa-btn">CONNECT VIA WHATSAPP</a>
+        </div>
+    </div>
+
+    <script>
+        const logBox = document.getElementById('log');
+        const countBox = document.getElementById('packet-count');
+
+        function startScan() {
+            document.getElementById('network-list').innerHTML = "SCANNING_ALL_CHANNELS...";
+            fetch('/scan', {method: 'POST'}).then(r => r.json()).then(data => {
+                let html = '';
+                data.forEach(n => {
+                    html += `<div class="net-item" onclick="prepareAttack('${n.bssid}', '${n.ssid}', ${n.ch})">
+                        <span>${n.ssid} (CH:${n.ch})</span><span>${n.signal}dBm</span>
+                    </div>`;
+                });
+                document.getElementById('network-list').innerHTML = html || "NO_SIGNALS_FOUND";
+            });
+        }
+
+        function prepareAttack(bssid, ssid, ch) {
+            logBox.innerHTML += `<br>> LOCKING_TARGET: ${ssid}`;
+            logBox.innerHTML += `<br>> READY_FOR_DEAUTH_STRIKE.`;
+            // Start the attack immediately on selection
+            fetch('/attack', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({bssid: bssid, ch: ch})
+            });
+        }
+
+        function stopAttack() {
+            fetch('/stop', {method: 'POST'}).then(() => {
+                logBox.innerHTML += `<br>> STRIKE_HALTED. DISCONNECTING...`;
+            });
+        }
+
+        setInterval(() => {
+            fetch('/stats').then(r => r.json()).then(data => {
+                countBox.innerText = data.count.toLocaleString();
+                countBox.style.color = data.active ? "white" : "var(--crimson)";
+            });
+        }, 500);
+    </script>
+</body>
+</html>
